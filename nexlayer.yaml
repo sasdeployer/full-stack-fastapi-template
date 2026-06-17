@@ -1,0 +1,27 @@
+application:
+  name: cool-vale-full-stack-fastapi-template
+  pods:
+    - name: backend
+      image: "# filled by pipeline"
+      servicePorts:
+        - 8000
+      vars:
+        ROOT_URL: "<% URL %>"
+    - name: db
+      image: mirror.gcr.io/library/postgres:16-alpine
+      servicePorts:
+        - 5432
+      vars:
+        POSTGRES_USER: "postgres"
+        POSTGRES_PASSWORD: "password"
+        POSTGRES_DB: "app"
+    - name: frontend
+      image: mirror.gcr.io/library/node:22-alpine
+      servicePorts:
+        - 5173
+      vars:
+        VITE_API_URL: "<% URL %>"
+    - name: mailcatcher
+      image: mirror.gcr.io/library/mailcatcher:latest
+      servicePorts:
+        - 1080
