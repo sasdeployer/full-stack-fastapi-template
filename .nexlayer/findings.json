@@ -3,7 +3,7 @@
   "app": "full-stack-fastapi-template",
   "repo": "https://github.com/sasdeployer/full-stack-fastapi-template",
   "branch": "master",
-  "analyzedAt": "2026-10-06T09:17:08.762Z",
+  "analyzedAt": "2026-10-06T21:39:02.743Z",
   "registered": true,
   "techStack": [
     {
@@ -14,26 +14,25 @@
         "kind": "read",
         "sources": [
           "pyproject.toml",
-          "backend/"
+          "README.md"
         ]
       }
     },
     {
       "name": "FastAPI",
       "kind": "framework",
-      "version": "unknown",
+      "version": "",
       "basis": {
         "kind": "read",
         "sources": [
-          "README.md",
-          "backend/"
+          "README.md"
         ]
       }
     },
     {
       "name": "SQLModel",
       "kind": "framework",
-      "version": "unknown",
+      "version": "",
       "basis": {
         "kind": "read",
         "sources": [
@@ -44,7 +43,7 @@
     {
       "name": "Pydantic",
       "kind": "framework",
-      "version": "unknown",
+      "version": "",
       "basis": {
         "kind": "read",
         "sources": [
@@ -53,20 +52,20 @@
       }
     },
     {
-      "name": "Alembic",
-      "kind": "tool",
-      "version": "unknown",
+      "name": "PostgreSQL",
+      "kind": "database",
+      "version": "",
       "basis": {
         "kind": "read",
         "sources": [
-          "backend/"
+          "README.md"
         ]
       }
     },
     {
       "name": "uv",
       "kind": "build",
-      "version": "unknown",
+      "version": "",
       "basis": {
         "kind": "read",
         "sources": [
@@ -76,45 +75,42 @@
       }
     },
     {
-      "name": "PostgreSQL",
-      "kind": "database",
-      "version": "unknown",
+      "name": "Pytest",
+      "kind": "tool",
+      "version": "",
       "basis": {
         "kind": "read",
         "sources": [
-          "README.md",
-          "compose.yml"
+          "README.md"
         ]
       }
     },
     {
       "name": "TypeScript",
       "kind": "language",
-      "version": "unknown",
+      "version": "",
       "basis": {
         "kind": "read",
         "sources": [
-          "README.md",
-          "frontend/"
+          "README.md"
         ]
       }
     },
     {
       "name": "React",
       "kind": "framework",
-      "version": "unknown",
+      "version": "",
       "basis": {
         "kind": "read",
         "sources": [
-          "README.md",
-          "frontend/"
+          "README.md"
         ]
       }
     },
     {
       "name": "Vite",
       "kind": "build",
-      "version": "unknown",
+      "version": "",
       "basis": {
         "kind": "read",
         "sources": [
@@ -125,7 +121,7 @@
     {
       "name": "Tailwind CSS",
       "kind": "framework",
-      "version": "unknown",
+      "version": "",
       "basis": {
         "kind": "read",
         "sources": [
@@ -136,7 +132,18 @@
     {
       "name": "shadcn/ui",
       "kind": "framework",
-      "version": "unknown",
+      "version": "",
+      "basis": {
+        "kind": "read",
+        "sources": [
+          "README.md"
+        ]
+      }
+    },
+    {
+      "name": "Playwright",
+      "kind": "tool",
+      "version": "",
       "basis": {
         "kind": "read",
         "sources": [
@@ -147,7 +154,7 @@
     {
       "name": "Bun",
       "kind": "build",
-      "version": "unknown",
+      "version": "",
       "basis": {
         "kind": "read",
         "sources": [
@@ -157,43 +164,22 @@
       }
     },
     {
-      "name": "Playwright",
-      "kind": "tool",
-      "version": "unknown",
-      "basis": {
-        "kind": "read",
-        "sources": [
-          "README.md"
-        ]
-      }
-    },
-    {
-      "name": "Pytest",
-      "kind": "tool",
-      "version": "unknown",
-      "basis": {
-        "kind": "read",
-        "sources": [
-          "README.md"
-        ]
-      }
-    },
-    {
       "name": "Docker Compose",
       "kind": "infra",
-      "version": "unknown",
+      "version": "",
       "basis": {
         "kind": "read",
         "sources": [
           "compose.yml",
-          "compose.override.yml"
+          "compose.override.yml",
+          "README.md"
         ]
       }
     },
     {
       "name": "Traefik",
       "kind": "infra",
-      "version": "unknown",
+      "version": "",
       "basis": {
         "kind": "read",
         "sources": [
@@ -205,12 +191,11 @@
     {
       "name": "Mailcatcher",
       "kind": "tool",
-      "version": "unknown",
+      "version": "",
       "basis": {
         "kind": "read",
         "sources": [
-          "README.md",
-          "compose.override.yml"
+          "README.md"
         ]
       }
     }
@@ -245,6 +230,7 @@
       "envNames": [
         "ENVIRONMENT",
         "PROJECT_NAME",
+        "FRONTEND_HOST",
         "SECRET_KEY",
         "FIRST_SUPERUSER",
         "FIRST_SUPERUSER_PASSWORD",
@@ -252,9 +238,7 @@
         "POSTGRES_PORT",
         "POSTGRES_DB",
         "POSTGRES_USER",
-        "POSTGRES_PASSWORD",
-        "FRONTEND_HOST",
-        "BACKEND_CORS_ORIGINS"
+        "POSTGRES_PASSWORD"
       ]
     },
     {
@@ -272,8 +256,7 @@
       "envNames": [
         "POSTGRES_DB",
         "POSTGRES_USER",
-        "POSTGRES_PASSWORD",
-        "PGDATA"
+        "POSTGRES_PASSWORD"
       ]
     }
   ],
@@ -307,19 +290,15 @@
     "VITE_API_URL": "http://localhost:8000"
   },
   "deployNotes": [
-    "Three pods: db (PostgreSQL), backend (FastAPI/uvicorn on 8000), and frontend (static Vite build served by nginx on 80). The Traefik proxy, Adminer and Mailcatcher from Compose are not needed, because Nexlayer handles routing and ingress.",
-    "The backend reaches the database at db.pod:5432 (POSTGRES_SERVER=db.pod, POSTGRES_PORT=5432). Never use localhost or the Compose service name 'db'.",
-    "The Compose 'prestart' service (backend/scripts/prestart.sh: wait for DB, alembic upgrade head, create initial superuser) is a one-shot job, not a daemon. Run it in the backend pod's start command before launching uvicorn, e.g. `bash scripts/prestart.sh && fastapi run --workers 4 app/main.py`.",
-    "Backend and frontend images are built from their own Dockerfiles (backend/Dockerfile uses uv; frontend/Dockerfile runs a Bun/Node build then nginx). The listed base images are the mirror.gcr.io equivalents to use in those Dockerfiles.",
-    "VITE_API_URL is baked into the frontend at build time, so set it to the backend pod's public URL before building the frontend image.",
-    "Set BACKEND_CORS_ORIGINS and FRONTEND_HOST to the frontend's public URL so browser calls to the backend pass CORS and email links resolve.",
-    "Do not leave SECRET_KEY, FIRST_SUPERUSER_PASSWORD or POSTGRES_PASSWORD as 'changethis' outside local: the app refuses to start with default secrets when ENVIRONMENT is not local. The Postgres password is generated by Nexlayer and shared with the backend as POSTGRES_PASSWORD.",
-    "The exact file contents of backend/ and frontend/ were not provided, so ports and start commands follow the standard template conventions (backend 8000, frontend nginx 80)."
+    "Backend reaches Postgres at db.pod:5432 via POSTGRES_SERVER=db.pod and POSTGRES_PORT=5432. The template builds its connection URI from these discrete variables, not from a DATABASE_URL.",
+    "The backend image is built from backend/Dockerfile (uv sync, then fastapi run on port 8000). The base image above only shows the mirror.gcr.io form.",
+    "Before the API starts, run the template's prestart steps once: alembic upgrade head, then python app/initial_data.py to create FIRST_SUPERUSER. Run them in the backend container's start command, not as a separate daemon pod.",
+    "The frontend is a static Vite build served by nginx, built from frontend/Dockerfile. VITE_API_URL is baked in at build time and is called from the user's browser, so it must be the backend's public URL, not a .pod address.",
+    "The backend must allow the frontend's public origin through BACKEND_CORS_ORIGINS.",
+    "Traefik, Adminer and Mailcatcher from the compose files are not needed. Nexlayer handles routing, and a real SMTP provider replaces Mailcatcher.",
+    "In a non-local ENVIRONMENT the settings validation rejects the value 'changethis' for SECRET_KEY, POSTGRES_PASSWORD and FIRST_SUPERUSER_PASSWORD, so set real values."
   ],
-  "intent": {
-    "purpose": "",
-    "stage": "experiment"
-  },
+  "intent": null,
   "fromManifest": false,
   "live": null,
   "legacyDocs": [],
@@ -330,31 +309,33 @@
     "noTemplate": []
   },
   "productionPlan": {
-    "summary": "Three services run: a React/Vite single-page app served by nginx, a FastAPI backend on port 8000, and Postgres 18. The browser loads the frontend at / and calls the backend at /api on the same app URL. The backend reaches Postgres at db.pod:5432 and runs database migrations plus initial-user setup before it starts. What matters most for production: the Postgres data must sit on a volume, and the frontend must be built with VITE_API_URL set to the app's public URL, because that value is baked in at build time.",
+    "summary": "The app has three services: a React/Vite frontend served as static files by nginx, a FastAPI backend that serves everything under /api/v1, and a Postgres 18 database the backend reaches at db.pod:5432. The frontend and backend share one public URL: the frontend takes '/' and the backend takes '/api'. The browser therefore calls the backend on the same origin, so the frontend build must bake in that public URL as VITE_API_URL. The most important thing for production is setting SECRET_KEY explicitly and keeping the database on a volume. Without SECRET_KEY, each of the 4 backend workers generates its own random key and logins break. Without the volume, users and items vanish on restart.",
     "decisions": [
       {
         "topic": "services",
-        "decision": "Keep three services: frontend, backend and db. Drop adminer (a database admin UI), the Traefik proxy/traefik services and Mailcatcher. Run the one-shot prestart step (bash scripts/prestart.sh) inside the backend's start command, just before fastapi run.",
-        "why": "Nexlayer routes traffic itself, so Traefik is not needed. Adminer and Mailcatcher are dev and admin helpers. prestart is a one-shot job that compose runs before backend, not a long-running service.",
+        "decision": "Run three services: frontend (nginx, port 80), backend (FastAPI, port 8000) and db (Postgres). Drop adminer, traefik/proxy and mailcatcher. Do not run the one-shot 'prestart' service as its own service; its script runs in the backend's start command instead.",
+        "why": "compose.yml defines db, adminer, prestart, backend and frontend. Traefik is only a reverse proxy, which Nexlayer replaces with its own routing. Adminer is a DB admin UI and mailcatcher is a dev mail catcher. prestart runs 'bash scripts/prestart.sh' once and exits, so the backend command becomes 'bash scripts/prestart.sh && exec fastapi run --workers 4 app/main.py'.",
         "evidence": [
           "compose.yml",
           "compose.override.yml",
           "compose.traefik.yml",
-          "backend/scripts/prestart.sh"
+          "backend/scripts/prestart.sh",
+          "backend/Dockerfile"
         ]
       },
       {
         "topic": "database",
-        "decision": "Postgres 18 (mirror.gcr.io/library/postgres:18) in its own service, with a 5 GB volume mounted at /var/lib/postgresql/data and PGDATA=/var/lib/postgresql/data/pgdata.",
-        "why": "compose.yml pins postgres:18 and stores data in a named volume with that PGDATA path. Without a volume, every user and item is lost on restart.",
+        "decision": "Postgres 18 (mirror.gcr.io/library/postgres:18) in its own db service with a 5 GB volume mounted at /var/lib/postgresql. Database 'app', user 'postgres', password from the POSTGRES_PASSWORD key.",
+        "why": "compose.yml pins postgres:18 and stores data on the app-db-data volume. The backend builds its connection URI from the separate POSTGRES_SERVER/PORT/USER/PASSWORD/DB variables, so those are set individually and POSTGRES_SERVER is db.pod.",
         "evidence": [
-          "compose.yml"
+          "compose.yml",
+          "backend/app/core/config.py"
         ]
       },
       {
         "topic": "networking",
-        "decision": "The frontend is served at / and the backend at /api on the same app URL. FRONTEND_HOST and BACKEND_CORS_ORIGINS are set to the app URL. The backend reaches the database at POSTGRES_SERVER=db.pod, port 5432.",
-        "why": "Every backend route, including openapi.json, is mounted under API_V1_STR=/api/v1. The CORS allow-list is BACKEND_CORS_ORIGINS plus FRONTEND_HOST. nginx serves the SPA with an index.html fallback on port 80.",
+        "decision": "Route frontend at path '/' and backend at path '/api' on the same app URL. Set FRONTEND_HOST to <% URL %> so CORS allows that origin.",
+        "why": "main.py mounts every route under API_V1_STR='/api/v1' and adds FRONTEND_HOST to the CORS origins. nginx.conf serves the SPA with an index.html fallback on port 80.",
         "evidence": [
           "backend/app/main.py",
           "backend/app/core/config.py",
@@ -363,17 +344,18 @@
       },
       {
         "topic": "keys",
-        "decision": "SECRET_KEY, FIRST_SUPERUSER, FIRST_SUPERUSER_PASSWORD and POSTGRES_PASSWORD are Nexlayer keys. POSTGRES_PASSWORD uses the same ${POSTGRES_PASSWORD} in the backend and the db service. ENVIRONMENT is set to production.",
-        "why": "Settings reads these from the environment and builds the Postgres DSN from POSTGRES_USER/POSTGRES_PASSWORD/POSTGRES_SERVER. The committed .env must not supply them in production.",
+        "decision": "Use five keys by name: SECRET_KEY, FIRST_SUPERUSER, FIRST_SUPERUSER_PASSWORD, POSTGRES_PASSWORD, and the db's matching POSTGRES_PASSWORD. Nexlayer fills them at deploy. Nothing is copied from the committed .env.",
+        "why": "In config.py SECRET_KEY defaults to secrets.token_urlsafe(32) per process, and the backend runs 4 workers. An unset key means each worker signs JWTs differently and every restart logs everyone out. The first-superuser credentials are what the prestart step uses to create the admin.",
         "evidence": [
           "backend/app/core/config.py",
+          "backend/Dockerfile",
           ".env"
         ]
       },
       {
         "topic": "build",
-        "decision": "Build both images from the repo root ('.'): backend with backend/Dockerfile (uv sync from uv.lock) and frontend with frontend/Dockerfile (Bun build, then nginx). Pass the build arg VITE_API_URL to the frontend build.",
-        "why": "Both Dockerfiles copy root files (uv.lock, pyproject.toml, package.json, bun.lock) alongside their subfolder. The frontend declares ARG VITE_API_URL before bun run build.",
+        "decision": "Build two images from the repo root context: backend from backend/Dockerfile and frontend from frontend/Dockerfile. Pass VITE_API_URL as a build argument set to the app's public URL.",
+        "why": "Both Dockerfiles copy root files (uv.lock, pyproject.toml, package.json, bun.lock), so the context must be '.'. frontend/Dockerfile declares ARG VITE_API_URL before 'bun run build', which bakes it into the static bundle.",
         "evidence": [
           "backend/Dockerfile",
           "frontend/Dockerfile",
@@ -383,46 +365,47 @@
       },
       {
         "topic": "scaling",
-        "decision": "Run one backend instance with the 4 uvicorn workers that the Dockerfile CMD already uses.",
-        "why": "Migrations run in the start command, so a single instance avoids parallel alembic upgrades racing each other. Four workers already give concurrency.",
+        "decision": "Run one instance of each service. The backend keeps its 4 in-process workers.",
+        "why": "The Dockerfile already runs 'fastapi run --workers 4'. The database is a single-writer Postgres. The migration step in the start command should not race across multiple instances.",
         "evidence": [
           "backend/Dockerfile",
-          "backend/alembic.ini"
+          "compose.yml"
         ]
       }
     ],
     "fix_before_production": [
       {
-        "title": "Supply real secrets as Nexlayer keys, never from the committed .env",
-        "why": "The repo commits a .env containing SECRET_KEY, FIRST_SUPERUSER_PASSWORD and POSTGRES_PASSWORD entries. Using those values exposes the JWT signing key and admin and database passwords. Per the analysis, the app also refuses to start in production with the default values.",
-        "where": ".env",
-        "severity": "blocker"
-      },
-      {
-        "title": "Build the frontend with VITE_API_URL set to the app's public URL",
-        "why": "VITE_API_URL is baked into the static bundle at build time. If it is left unset or set to localhost:8000, every browser API call (login, users, items) fails.",
+        "title": "Bake the real public app URL into VITE_API_URL when building the frontend",
+        "why": "VITE_API_URL is fixed into the static bundle at build time, and the local sample value is http://localhost:8000. A frontend built without the public URL sends every browser API call to localhost, so login and all data pages fail.",
         "where": "frontend/Dockerfile",
         "severity": "blocker"
       },
       {
-        "title": "Switch Docker Hub base images to the mirror and build with BuildKit",
-        "why": "FROM python:3.10 and FROM nginx:1 pull from rate-limited Docker Hub; use mirror.gcr.io/library/python:3.10 and mirror.gcr.io/library/nginx:1 instead. The backend's RUN --mount cache and bind mounts also fail without BuildKit.",
+        "title": "Use mirror.gcr.io/library images for the official base images",
+        "why": "The repo's base images are pulled from Docker Hub, which is rate-limited: 'FROM python:3.10' in backend/Dockerfile and 'FROM nginx:1' in frontend/Dockerfile. The fix is mirror.gcr.io/library/python:3.10 and mirror.gcr.io/library/nginx:1. oven/bun:1 is namespaced and can stay.",
         "where": "backend/Dockerfile",
+        "severity": "should"
+      },
+      {
+        "title": "Keep the committed .env files out of production images and config",
+        "why": "The root .env holds default credentials (the 'changethis' placeholders), and frontend/.env carries local settings. These must not leak into an image or be reused as production values; all keys come from Nexlayer. The backend Dockerfile does not copy .env, but frontend/Dockerfile copies the whole ./frontend folder.",
+        "where": ".env",
         "severity": "should"
       }
     ],
     "verify_after_deploy": [
-      "GET / on the app URL returns 200 with the SPA's index.html",
-      "GET <app URL>/api/v1/openapi.json returns 200 JSON. This confirms /api routes reach the backend with the /api/v1 prefix intact.",
-      "Backend logs show scripts/prestart.sh completing (alembic upgrade head) before fastapi starts serving on 8000",
-      "Log in through the UI with the FIRST_SUPERUSER account and confirm the browser's calls to <app URL>/api/v1 succeed with no CORS errors",
-      "Restart the db service, then log in again and confirm previously created items still exist (the volume persisted)"
+      "GET <app URL>/ returns 200 with the React index.html, and a deep link such as <app URL>/login also returns 200 (SPA fallback works)",
+      "GET <app URL>/api/v1/openapi.json returns 200 JSON whose title is 'Full Stack FastAPI Project'",
+      "Backend logs show the prestart script ran (alembic migrations applied, first superuser created) before 'fastapi run' started listening on port 8000",
+      "In the browser, log in with the FIRST_SUPERUSER credentials. The devtools network tab should show API calls going to <app URL>/api/v1/... (not localhost) and succeeding",
+      "Restart the db service, then log in again and confirm items created earlier are still listed (the volume persists data)"
     ],
     "open_questions": [
-      "Which SMTP provider (SMTP_HOST, SMTP_USER, SMTP_PASSWORD, EMAILS_FROM_EMAIL) should send password-recovery emails? Without one, email recovery will not work.",
-      "Do you want Sentry error reporting? If so, provide SENTRY_DSN; it is only used when ENVIRONMENT is not local."
+      "Which SMTP provider should send password-recovery and new-account emails? The SMTP_HOST, SMTP_USER, SMTP_PASSWORD and EMAILS_FROM_EMAIL keys are not set here, so email features will not work until you choose one.",
+      "Will the app use a custom domain? VITE_API_URL is baked into the frontend build, so the frontend must be rebuilt whenever the public URL changes.",
+      "Do you want Sentry error tracking? If so, provide SENTRY_DSN; it is only used when ENVIRONMENT is not 'local'."
     ],
-    "nexlayer_yaml": "application:\n  name: full-stack-fastapi-template\n  pods:\n    - name: frontend\n      image: \"registry.nexlayer.io/YOUR_USER_ID/full-stack-fastapi-template-frontend:planned\"\n      path: /\n      servicePorts:\n        - 80\n      vars: {}\n    - name: backend\n      image: \"registry.nexlayer.io/YOUR_USER_ID/full-stack-fastapi-template-backend:planned\"\n      path: /api\n      servicePorts:\n        - 8000\n      command: \"bash -c 'bash scripts/prestart.sh && exec fastapi run --workers 4 app/main.py'\"\n      vars:\n        ENVIRONMENT: production\n        PROJECT_NAME: \"Full Stack FastAPI Project\"\n        SECRET_KEY: \"${SECRET_KEY}\"\n        FIRST_SUPERUSER: \"${FIRST_SUPERUSER}\"\n        FIRST_SUPERUSER_PASSWORD: \"${FIRST_SUPERUSER_PASSWORD}\"\n        POSTGRES_SERVER: db.pod\n        POSTGRES_PORT: \"5432\"\n        POSTGRES_DB: app\n        POSTGRES_USER: postgres\n        POSTGRES_PASSWORD: \"${POSTGRES_PASSWORD}\"\n        FRONTEND_HOST: \"<% URL %>\"\n        BACKEND_CORS_ORIGINS: \"<% URL %>\"\n    - name: db\n      image: mirror.gcr.io/library/postgres:18\n      servicePorts:\n        - 5432\n      vars:\n        POSTGRES_DB: app\n        POSTGRES_USER: postgres\n        POSTGRES_PASSWORD: \"${POSTGRES_PASSWORD}\"\n        PGDATA: /var/lib/postgresql/data/pgdata\n      volumes:\n        - name: db-data\n          size: 5Gi\n          mountPath: /var/lib/postgresql/data\n",
+    "nexlayer_yaml": "application:\n  name: full-stack-fastapi-template\n  pods:\n    - name: frontend\n      image: \"registry.nexlayer.io/YOUR_USER_ID/full-stack-fastapi-template-frontend:planned\"\n      path: /\n      servicePorts:\n        - 80\n      vars: {}\n    - name: backend\n      image: \"registry.nexlayer.io/YOUR_USER_ID/full-stack-fastapi-template-backend:planned\"\n      path: /api\n      command: \"bash -c 'bash scripts/prestart.sh && exec fastapi run --workers 4 app/main.py'\"\n      servicePorts:\n        - 8000\n      vars:\n        ENVIRONMENT: production\n        PROJECT_NAME: \"Full Stack FastAPI Project\"\n        FRONTEND_HOST: \"<% URL %>\"\n        SECRET_KEY: \"${SECRET_KEY}\"\n        FIRST_SUPERUSER: \"${FIRST_SUPERUSER}\"\n        FIRST_SUPERUSER_PASSWORD: \"${FIRST_SUPERUSER_PASSWORD}\"\n        POSTGRES_SERVER: db.pod\n        POSTGRES_PORT: \"5432\"\n        POSTGRES_DB: app\n        POSTGRES_USER: postgres\n        POSTGRES_PASSWORD: \"${POSTGRES_PASSWORD}\"\n    - name: db\n      image: mirror.gcr.io/library/postgres:18\n      servicePorts:\n        - 5432\n      vars:\n        POSTGRES_DB: app\n        POSTGRES_USER: postgres\n        POSTGRES_PASSWORD: \"${POSTGRES_PASSWORD}\"\n      volumes:\n        - name: pg-data\n          size: 5Gi\n          mountPath: /var/lib/postgresql\n",
     "builds": [
       {
         "service": "frontend",
@@ -439,6 +422,7 @@
         "notes": ""
       }
     ],
+    "yaml_valid": true,
     "model": "anthropic/claude-opus-5.5",
     "dropped_evidence": 0
   },

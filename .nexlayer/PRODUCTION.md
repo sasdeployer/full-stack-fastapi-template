@@ -10,7 +10,7 @@ ask Nexlayer for it (see "How to deploy").
 | --- | --- |
 | Name | `full-stack-fastapi-template` |
 | Repo | `https://github.com/sasdeployer/full-stack-fastapi-template` on `master` |
-| Planned | 2026-10-06T09:17:08.762Z |
+| Planned | 2026-10-06T21:39:02.743Z |
 | Registered with Nexlayer | yes |
 
 `.nexlayer/plan.lock` pins the commit this plan was written against. If HEAD
@@ -22,40 +22,41 @@ re-check before deploying.
 Written by the Nexlayer agent from this repo. Every decision cites the files it
 rests on; if the code has changed since, re-check those files first.
 
-Three services run: a React/Vite single-page app served by nginx, a FastAPI backend on port 8000, and Postgres 18. The browser loads the frontend at / and calls the backend at /api on the same app URL. The backend reaches Postgres at db.pod:5432 and runs database migrations plus initial-user setup before it starts. What matters most for production: the Postgres data must sit on a volume, and the frontend must be built with VITE_API_URL set to the app's public URL, because that value is baked in at build time.
+The app has three services: a React/Vite frontend served as static files by nginx, a FastAPI backend that serves everything under /api/v1, and a Postgres 18 database the backend reaches at db.pod:5432. The frontend and backend share one public URL: the frontend takes '/' and the backend takes '/api'. The browser therefore calls the backend on the same origin, so the frontend build must bake in that public URL as VITE_API_URL. The most important thing for production is setting SECRET_KEY explicitly and keeping the database on a volume. Without SECRET_KEY, each of the 4 backend workers generates its own random key and logins break. Without the volume, users and items vanish on restart.
 
-- **services: Keep three services: frontend, backend and db. Drop adminer (a database admin UI), the Traefik proxy/traefik services and Mailcatcher. Run the one-shot prestart step (bash scripts/prestart.sh) inside the backend's start command, just before fastapi run.** — Nexlayer routes traffic itself, so Traefik is not needed. Adminer and Mailcatcher are dev and admin helpers. prestart is a one-shot job that compose runs before backend, not a long-running service. (`compose.yml`, `compose.override.yml`, `compose.traefik.yml`, `backend/scripts/prestart.sh`)
-- **database: Postgres 18 (mirror.gcr.io/library/postgres:18) in its own service, with a 5 GB volume mounted at /var/lib/postgresql/data and PGDATA=/var/lib/postgresql/data/pgdata.** — compose.yml pins postgres:18 and stores data in a named volume with that PGDATA path. Without a volume, every user and item is lost on restart. (`compose.yml`)
-- **networking: The frontend is served at / and the backend at /api on the same app URL. FRONTEND_HOST and BACKEND_CORS_ORIGINS are set to the app URL. The backend reaches the database at POSTGRES_SERVER=db.pod, port 5432.** — Every backend route, including openapi.json, is mounted under API_V1_STR=/api/v1. The CORS allow-list is BACKEND_CORS_ORIGINS plus FRONTEND_HOST. nginx serves the SPA with an index.html fallback on port 80. (`backend/app/main.py`, `backend/app/core/config.py`, `frontend/nginx.conf`)
-- **keys: SECRET_KEY, FIRST_SUPERUSER, FIRST_SUPERUSER_PASSWORD and POSTGRES_PASSWORD are Nexlayer keys. POSTGRES_PASSWORD uses the same ${POSTGRES_PASSWORD} in the backend and the db service. ENVIRONMENT is set to production.** — Settings reads these from the environment and builds the Postgres DSN from POSTGRES_USER/POSTGRES_PASSWORD/POSTGRES_SERVER. The committed .env must not supply them in production. (`backend/app/core/config.py`, `.env`)
-- **build: Build both images from the repo root ('.'): backend with backend/Dockerfile (uv sync from uv.lock) and frontend with frontend/Dockerfile (Bun build, then nginx). Pass the build arg VITE_API_URL to the frontend build.** — Both Dockerfiles copy root files (uv.lock, pyproject.toml, package.json, bun.lock) alongside their subfolder. The frontend declares ARG VITE_API_URL before bun run build. (`backend/Dockerfile`, `frontend/Dockerfile`, `pyproject.toml`, `package.json`)
-- **scaling: Run one backend instance with the 4 uvicorn workers that the Dockerfile CMD already uses.** — Migrations run in the start command, so a single instance avoids parallel alembic upgrades racing each other. Four workers already give concurrency. (`backend/Dockerfile`, `backend/alembic.ini`)
+- **services: Run three services: frontend (nginx, port 80), backend (FastAPI, port 8000) and db (Postgres). Drop adminer, traefik/proxy and mailcatcher. Do not run the one-shot 'prestart' service as its own service; its script runs in the backend's start command instead.** — compose.yml defines db, adminer, prestart, backend and frontend. Traefik is only a reverse proxy, which Nexlayer replaces with its own routing. Adminer is a DB admin UI and mailcatcher is a dev mail catcher. prestart runs 'bash scripts/prestart.sh' once and exits, so the backend command becomes 'bash scripts/prestart.sh && exec fastapi run --workers 4 app/main.py'. (`compose.yml`, `compose.override.yml`, `compose.traefik.yml`, `backend/scripts/prestart.sh`, `backend/Dockerfile`)
+- **database: Postgres 18 (mirror.gcr.io/library/postgres:18) in its own db service with a 5 GB volume mounted at /var/lib/postgresql. Database 'app', user 'postgres', password from the POSTGRES_PASSWORD key.** — compose.yml pins postgres:18 and stores data on the app-db-data volume. The backend builds its connection URI from the separate POSTGRES_SERVER/PORT/USER/PASSWORD/DB variables, so those are set individually and POSTGRES_SERVER is db.pod. (`compose.yml`, `backend/app/core/config.py`)
+- **networking: Route frontend at path '/' and backend at path '/api' on the same app URL. Set FRONTEND_HOST to <% URL %> so CORS allows that origin.** — main.py mounts every route under API_V1_STR='/api/v1' and adds FRONTEND_HOST to the CORS origins. nginx.conf serves the SPA with an index.html fallback on port 80. (`backend/app/main.py`, `backend/app/core/config.py`, `frontend/nginx.conf`)
+- **keys: Use five keys by name: SECRET_KEY, FIRST_SUPERUSER, FIRST_SUPERUSER_PASSWORD, POSTGRES_PASSWORD, and the db's matching POSTGRES_PASSWORD. Nexlayer fills them at deploy. Nothing is copied from the committed .env.** — In config.py SECRET_KEY defaults to secrets.token_urlsafe(32) per process, and the backend runs 4 workers. An unset key means each worker signs JWTs differently and every restart logs everyone out. The first-superuser credentials are what the prestart step uses to create the admin. (`backend/app/core/config.py`, `backend/Dockerfile`, `.env`)
+- **build: Build two images from the repo root context: backend from backend/Dockerfile and frontend from frontend/Dockerfile. Pass VITE_API_URL as a build argument set to the app's public URL.** — Both Dockerfiles copy root files (uv.lock, pyproject.toml, package.json, bun.lock), so the context must be '.'. frontend/Dockerfile declares ARG VITE_API_URL before 'bun run build', which bakes it into the static bundle. (`backend/Dockerfile`, `frontend/Dockerfile`, `pyproject.toml`, `package.json`)
+- **scaling: Run one instance of each service. The backend keeps its 4 in-process workers.** — The Dockerfile already runs 'fastapi run --workers 4'. The database is a single-writer Postgres. The migration step in the start command should not race across multiple instances. (`backend/Dockerfile`, `compose.yml`)
 
 ### Fix before production
 
-- **Blocker** — Supply real secrets as Nexlayer keys, never from the committed .env: The repo commits a .env containing SECRET_KEY, FIRST_SUPERUSER_PASSWORD and POSTGRES_PASSWORD entries. Using those values exposes the JWT signing key and admin and database passwords. Per the analysis, the app also refuses to start in production with the default values. (`.env`)
-- **Blocker** — Build the frontend with VITE_API_URL set to the app's public URL: VITE_API_URL is baked into the static bundle at build time. If it is left unset or set to localhost:8000, every browser API call (login, users, items) fails. (`frontend/Dockerfile`)
-- Switch Docker Hub base images to the mirror and build with BuildKit: FROM python:3.10 and FROM nginx:1 pull from rate-limited Docker Hub; use mirror.gcr.io/library/python:3.10 and mirror.gcr.io/library/nginx:1 instead. The backend's RUN --mount cache and bind mounts also fail without BuildKit. (`backend/Dockerfile`)
+- **Blocker** — Bake the real public app URL into VITE_API_URL when building the frontend: VITE_API_URL is fixed into the static bundle at build time, and the local sample value is http://localhost:8000. A frontend built without the public URL sends every browser API call to localhost, so login and all data pages fail. (`frontend/Dockerfile`)
+- Use mirror.gcr.io/library images for the official base images: The repo's base images are pulled from Docker Hub, which is rate-limited: 'FROM python:3.10' in backend/Dockerfile and 'FROM nginx:1' in frontend/Dockerfile. The fix is mirror.gcr.io/library/python:3.10 and mirror.gcr.io/library/nginx:1. oven/bun:1 is namespaced and can stay. (`backend/Dockerfile`)
+- Keep the committed .env files out of production images and config: The root .env holds default credentials (the 'changethis' placeholders), and frontend/.env carries local settings. These must not leak into an image or be reused as production values; all keys come from Nexlayer. The backend Dockerfile does not copy .env, but frontend/Dockerfile copies the whole ./frontend folder. (`.env`)
 
 ### Verify after the deploy
 
-1. GET / on the app URL returns 200 with the SPA's index.html
-2. GET <app URL>/api/v1/openapi.json returns 200 JSON. This confirms /api routes reach the backend with the /api/v1 prefix intact.
-3. Backend logs show scripts/prestart.sh completing (alembic upgrade head) before fastapi starts serving on 8000
-4. Log in through the UI with the FIRST_SUPERUSER account and confirm the browser's calls to <app URL>/api/v1 succeed with no CORS errors
-5. Restart the db service, then log in again and confirm previously created items still exist (the volume persisted)
+1. GET <app URL>/ returns 200 with the React index.html, and a deep link such as <app URL>/login also returns 200 (SPA fallback works)
+2. GET <app URL>/api/v1/openapi.json returns 200 JSON whose title is 'Full Stack FastAPI Project'
+3. Backend logs show the prestart script ran (alembic migrations applied, first superuser created) before 'fastapi run' started listening on port 8000
+4. In the browser, log in with the FIRST_SUPERUSER credentials. The devtools network tab should show API calls going to <app URL>/api/v1/... (not localhost) and succeeding
+5. Restart the db service, then log in again and confirm items created earlier are still listed (the volume persists data)
 
 ### Ask the human
 
-- Which SMTP provider (SMTP_HOST, SMTP_USER, SMTP_PASSWORD, EMAILS_FROM_EMAIL) should send password-recovery emails? Without one, email recovery will not work.
-- Do you want Sentry error reporting? If so, provide SENTRY_DSN; it is only used when ENVIRONMENT is not local.
+- Which SMTP provider should send password-recovery and new-account emails? The SMTP_HOST, SMTP_USER, SMTP_PASSWORD and EMAILS_FROM_EMAIL keys are not set here, so email features will not work until you choose one.
+- Will the app use a custom domain? VITE_API_URL is baked into the frontend build, so the frontend must be rebuilt whenever the public URL changes.
+- Do you want Sentry error tracking? If so, provide SENTRY_DSN; it is only used when ENVIRONMENT is not 'local'.
 
 ## Drafts in this pull request
 
 This repo had no deploy config, so this plan adds drafts where files were
 missing (never over an existing file):
 
-- `nexlayer.yaml` — what runs, written by the Nexlayer agent (see "The production plan"). Not yet checked by the Nexlayer validator — run `nexlayer_validate_yaml` first.
+- `nexlayer.yaml` — what runs, written by the Nexlayer agent (see "The production plan"). It passes the Nexlayer validator.
 
 Build them once, fix what fails, then deploy with `.nexlayer/pipeline.yaml`.
 After the first successful deploy, these files are the source of truth.
@@ -94,7 +95,7 @@ For a missing key: **do not ask the human to paste it into the chat, and do**
 cannot be taken back from. Send them to the app's Secrets instead, wait
 until they say it is added, then deploy:
 
-<https://zen-antelope-nexlayer-dashboard-preview.cloud.nexlayer.ai/apps/be7d57a0-8a3a-4b9c-a3ca-902327e6ba6b/keys>
+<http://localhost:3001/apps/8cefeeda-35b9-401e-a9c3-1fedf838f02a/keys>
 
 ## What was inferred rather than read
 
