@@ -3,7 +3,7 @@
   "app": "full-stack-fastapi-template",
   "repo": "https://github.com/sasdeployer/full-stack-fastapi-template",
   "branch": "master",
-  "analyzedAt": "2026-10-06T21:39:02.743Z",
+  "analyzedAt": "2026-10-06T22:03:23.437Z",
   "registered": true,
   "techStack": [
     {
@@ -298,7 +298,10 @@
     "Traefik, Adminer and Mailcatcher from the compose files are not needed. Nexlayer handles routing, and a real SMTP provider replaces Mailcatcher.",
     "In a non-local ENVIRONMENT the settings validation rejects the value 'changethis' for SECRET_KEY, POSTGRES_PASSWORD and FIRST_SUPERUSER_PASSWORD, so set real values."
   ],
-  "intent": null,
+  "intent": {
+    "purpose": "",
+    "stage": "production"
+  },
   "fromManifest": false,
   "live": null,
   "legacyDocs": [],
