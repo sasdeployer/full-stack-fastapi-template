@@ -1,0 +1,39 @@
+application:
+  name: full-stack-fastapi-template
+  pods:
+    - name: frontend
+      image: "registry.nexlayer.io/user_01m47dfhg60zn1jv2p7gkegt3x/full-stack-fastapi-template-frontend:planned"
+      path: /
+      servicePorts:
+        - 80
+      vars: {}
+    - name: backend
+      image: "registry.nexlayer.io/user_01m47dfhg60zn1jv2p7gkegt3x/full-stack-fastapi-template-backend:planned"
+      path: /api
+      command: "bash -c 'bash scripts/prestart.sh && exec fastapi run --workers 4 app/main.py'"
+      servicePorts:
+        - 8000
+      vars:
+        ENVIRONMENT: production
+        PROJECT_NAME: "Full Stack FastAPI Project"
+        FRONTEND_HOST: "<% URL %>"
+        SECRET_KEY: "${SECRET_KEY}"
+        FIRST_SUPERUSER: "${FIRST_SUPERUSER}"
+        FIRST_SUPERUSER_PASSWORD: "${FIRST_SUPERUSER_PASSWORD}"
+        POSTGRES_SERVER: db.pod
+        POSTGRES_PORT: "5432"
+        POSTGRES_DB: app
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    - name: db
+      image: mirror.gcr.io/library/postgres:18
+      servicePorts:
+        - 5432
+      vars:
+        POSTGRES_DB: app
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      volumes:
+        - name: pg-data
+          size: 5Gi
+          mountPath: /var/lib/postgresql

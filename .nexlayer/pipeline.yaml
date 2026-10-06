@@ -1,0 +1,61 @@
+# How this app goes from a commit to live on Nexlayer.
+# Written by Nexlayer from what it read in this repo; owned by your coding
+# agent from here. Every agent and CI runs exactly this. Secret VALUES are
+# never written here.
+app: full-stack-fastapi-template
+deploy:
+  config: nexlayer.yaml   # a draft, added by this plan — check it
+  environment: ~   # set by the first deploy
+  through: nexlayer-mcp          # validate -> deploy -> status; nothing deploys around it
+build:
+  - pod: frontend             # the nexlayer.yaml pod that runs it
+    image: full-stack-fastapi-template-frontend         # registry.nexlayer.io/<your user id>/full-stack-fastapi-template-frontend:<tag>
+    context: .
+    dockerfile: frontend/Dockerfile
+    platform: linux/amd64
+    tag: git-sha                 # immutable; "latest" is rejected
+    # read from `frontend/Dockerfile`
+  - pod: backend             # the nexlayer.yaml pod that runs it
+    image: full-stack-fastapi-template-backend         # registry.nexlayer.io/<your user id>/full-stack-fastapi-template-backend:<tag>
+    context: .
+    dockerfile: backend/Dockerfile
+    platform: linux/amd64
+    tag: git-sha                 # immutable; "latest" is rejected
+    # read from `backend/Dockerfile`
+services:
+  - name: frontend
+    port: 80
+    public: true   # read from `.nexlayer/drafts/nexlayer.yaml`
+  - name: backend
+    port: 8000
+    public: true   # read from `.nexlayer/drafts/nexlayer.yaml`
+  - name: db
+    image: 'mirror.gcr.io/library/postgres:18'
+    port: 5432
+    public: false   # read from `.nexlayer/drafts/nexlayer.yaml`
+verify:                         # done means all of these pass
+  - service: frontend
+    status: running             # nexlayer_check_deployment_status
+  - service: backend
+    status: running             # nexlayer_check_deployment_status
+  - service: db
+    status: running             # nexlayer_check_deployment_status
+  - url: /                       # the live URL answers 2xx/3xx with a real page
+secrets:                        # names only — values live in Nexlayer
+  - name: SECRET_KEY
+    status: needed_from_human
+  - name: FIRST_SUPERUSER_PASSWORD
+    status: needed_from_human
+  - name: FIRST_SUPERUSER
+    status: needed_from_human
+buildConfig:                    # public build-time values, baked into the bundle
+  VITE_API_URL: 'http://localhost:8000'
+rollback: redeploy the previous image tag from the Nexlayer deploy history
+notes:                          # from the analysis — keep what holds, fix what doesn't
+  - 'Backend reaches Postgres at db.pod:5432 via POSTGRES_SERVER=db.pod and POSTGRES_PORT=5432. The template builds its connection URI from these discrete variables, not from a DATABASE_URL.'
+  - 'The backend image is built from backend/Dockerfile (uv sync, then fastapi run on port 8000). The base image above only shows the mirror.gcr.io form.'
+  - 'Before the API starts, run the template''s prestart steps once: alembic upgrade head, then python app/initial_data.py to create FIRST_SUPERUSER. Run them in the backend container''s start command, not as a separate daemon pod.'
+  - 'The frontend is a static Vite build served by nginx, built from frontend/Dockerfile. VITE_API_URL is baked in at build time and is called from the user''s browser, so it must be the backend''s public URL, not a .pod address.'
+  - 'The backend must allow the frontend''s public origin through BACKEND_CORS_ORIGINS.'
+  - 'Traefik, Adminer and Mailcatcher from the compose files are not needed. Nexlayer handles routing, and a real SMTP provider replaces Mailcatcher.'
+  - 'In a non-local ENVIRONMENT the settings validation rejects the value ''changethis'' for SECRET_KEY, POSTGRES_PASSWORD and FIRST_SUPERUSER_PASSWORD, so set real values.'
