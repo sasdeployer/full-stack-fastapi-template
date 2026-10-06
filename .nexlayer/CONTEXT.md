@@ -5,7 +5,7 @@ starts with the same picture. Read this before proposing infrastructure
 changes.
 
 - **Repo** `https://github.com/sasdeployer/full-stack-fastapi-template` on `master`
-- **Analyzed** 2026-10-06T09:16:46.454Z
+- **Analyzed** 2026-10-06T09:17:08.762Z
 
 ## Stack
 
@@ -59,6 +59,14 @@ app's Secrets. Values never go in this repo, the chat, or your context.
 
 If you are a coding agent: do not ask the human to paste a missing key into
 the chat, and do not write one into this repo.
+
+## What the human told us
+
+**Stage.** This is an experiment.
+
+Said by a person, not derived from the code. Where this contradicts what
+the repo looks like, the person is right about intent and the repo is
+right about what exists today.
 
 ## Notes from the analysis
 

@@ -10,7 +10,7 @@ ask Nexlayer for it (see "How to deploy").
 | --- | --- |
 | Name | `full-stack-fastapi-template` |
 | Repo | `https://github.com/sasdeployer/full-stack-fastapi-template` on `master` |
-| Planned | 2026-10-06T09:16:46.454Z |
+| Planned | 2026-10-06T09:17:08.762Z |
 | Registered with Nexlayer | yes |
 
 `.nexlayer/plan.lock` pins the commit this plan was written against. If HEAD
